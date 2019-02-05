@@ -65,7 +65,7 @@
             Grid.Column="0"/>
 
         <Grid Name="inkGrid" 
-            Background="Black"
+            Background="DarkGray"
             Grid.Row="1"
             Grid.Column="0">
             <InkCanvas 
