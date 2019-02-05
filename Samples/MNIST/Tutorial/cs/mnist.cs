@@ -13,7 +13,7 @@ namespace MNIST_Demo
     
     public sealed class mnistInput
     {
-        public ImageFeatureValue Input3; // BitmapPixelFormat: Gray8, BitmapAlphaMode: Premultiplied, width: 28, height: 28
+        public TensorFloat Input3; // shape(1,1,28,28)
     }
     
     public sealed class mnistOutput
