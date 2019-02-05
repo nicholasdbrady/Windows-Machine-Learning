@@ -9,11 +9,15 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.AI.MachineLearning;
 using Windows.Media;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
 
 namespace MNIST_Demo
 {
     public sealed partial class MainPage : Page
     {
+        private mnistModel ModelGen;
+        private mnistInput ModelInput = new mnistInput();
+        private mnistOutput ModelOutput;
         private Helper                  helper = new Helper();
         RenderTargetBitmap              renderBitmap = new RenderTargetBitmap();
 
@@ -37,12 +41,29 @@ namespace MNIST_Demo
 
         private async Task LoadModelAsync()
         {
-
+            //Load a machine learning model
+            StorageFile modelFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri($"ms-appx:///Assets/mnist.onnx"));
+            ModelGen = await mnistModel.CreateFromStreamAsync(modelFile as IRandomAccessStreamReference);
         }
 
         private async void recognizeButton_Click(object sender, RoutedEventArgs e)
         {
+            //Bind model input with contents from InkCanvas
+            VideoFrame vf = await helper.GetHandWrittenImage(inkGrid);
+            ModelInput.Input3 = ImageFeatureValue.CreateFromVideoFrame(vf);
 
+            //Evaluate the model
+            ModelOutput = await ModelGen.EvaluateAsync(ModelInput);
+
+            //Convert output to datatype
+            IReadOnlyList<float> vectorImage = ModelOutput.Plus214_Output_0.GetAsVectorView();
+            IList<float> imageList = vectorImage.ToList();
+
+            //Query to check for highest probability digit
+            var maxIndex = imageList.IndexOf(imageList.Max());
+
+            //Display the results
+            numberLabel.Text = maxIndex.ToString();
         }
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
